@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,6 +15,14 @@ public class DemonstrationUi : MonoBehaviour, IPointerEnterHandler, IPointerExit
 	public static bool IsMouseOver;
 
 	public static event Action<bool> OnPause;
+
+	public static IEnumerator FixUnityBug(bool value)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForEndOfFrame();
+		print("Fix: " + value);
+		IsMouseOver = value;
+	}
 
 	void CallAllFunctions()
 	{

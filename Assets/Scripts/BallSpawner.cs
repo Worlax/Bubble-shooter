@@ -30,6 +30,7 @@ public class BallSpawner : Singleton<BallSpawner>
 		{
 			Destroy(tr.gameObject);
 		}
+
 		SpawnLevel();
 	}
 
