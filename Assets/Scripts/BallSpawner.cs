@@ -12,6 +12,27 @@ public class BallSpawner : Singleton<BallSpawner>
 	[SerializeField] Transform content;
 	[SerializeField] List<Ball> ballPrefabs = new List<Ball>();
 
+	// Setters
+	public void SetHeight(int value)
+	{
+		height = Mathf.Clamp(value, 1, 14);
+	}
+
+	public void SetDebsity(int value)
+	{
+		density = Mathf.Clamp(value, 1, 100);
+	}
+	// ...
+
+	public void RespawnLevel()
+	{
+		foreach (Transform tr in content)
+		{
+			Destroy(tr.gameObject);
+		}
+		SpawnLevel();
+	}
+
 	public void ConnectBallToTarget(Ball ball, Ball target)
 	{
 		ball.transform.rotation = Quaternion.identity;
@@ -24,6 +45,25 @@ public class BallSpawner : Singleton<BallSpawner>
 		List<Vector2> possibleSlots = GetPossibleSlotsToConnect(ball, target);
 		Vector2 closestSlot = GetClosestSlot(ball.transform.position, possibleSlots);
 		ball.transform.position = closestSlot;
+	}
+
+	void SpawnLevel()
+	{
+		Vector2 startPosition = transform.position;
+		Vector2 currentPosition;
+
+		for (int row = 0; row < height; ++row)
+		{
+			for (int column = 0; column < width; ++column)
+			{
+				// Every second row will have 1 less ball
+				// due to the offset
+				if (row % 2 != 0 && column == width - 1) { break; }
+
+				currentPosition = GetSpawnPosition(startPosition, column, row);
+				TryToSpawnBall(currentPosition);
+			}
+		}
 	}
 
 	List<Vector2> GetPossibleSlotsToConnect(Ball ball, Ball target)
@@ -66,25 +106,6 @@ public class BallSpawner : Singleton<BallSpawner>
 		return slots[0];
 	}
 
-	void SpawnLevel()
-	{
-		Vector2 startPosition = transform.position;
-		Vector2 currentPosition;
-
-		for (int row = 0; row < height; ++row)
-		{
-			for (int column = 0; column < width; ++column)
-			{
-				// Every second row will have 1 less ball
-				// due to the offset
-				if (row % 2 != 0 && column == width - 1) { break; }
-
-				currentPosition = GetSpawnPosition(startPosition, column, row);
-				TryToSpawnBall(currentPosition);
-			}
-		}
-	}
-
 	Vector2 GetSpawnPosition(Vector2 startPosition, int column, int row)
 	{
 		float x = startPosition.x + horizontalSpacing * column;
@@ -112,24 +133,5 @@ public class BallSpawner : Singleton<BallSpawner>
 		ball.transform.position = position;
 
 		return ball;
-	}
-
-	// Unity
-	private void Start()
-	{
-		SpawnLevel();
-	}
-
-	private void Update()
-	{
-		// For testing
-		if (Input.GetKeyDown(KeyCode.F1))
-		{
-			foreach (Transform tr in content)
-			{
-				Destroy(tr.gameObject);
-			}
-			SpawnLevel();
-		}
 	}
 }

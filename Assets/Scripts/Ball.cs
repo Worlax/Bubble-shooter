@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,11 +6,13 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
 	[SerializeField] float speed = 300;
-	[SerializeField] float overlapArea = 1;
 	[SerializeField] int ballsToMatch = 3;
+	[SerializeField] float overlapArea = 0.7f;
 	[field: SerializeField] public BallType ThisBallType { get; private set; }
 
 	bool firedBall;
+
+	public static event Action OnBallConnected;
 
 	public enum BallType
 	{
@@ -104,6 +107,7 @@ public class Ball : MonoBehaviour
 		{
 			firedBall = false;
 			BallSpawner.Instance.ConnectBallToTarget(this, otherBall);
+			OnBallConnected?.Invoke();
 			CheckForMatch();
 		}
 	}

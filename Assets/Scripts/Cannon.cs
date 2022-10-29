@@ -42,28 +42,32 @@ public class Cannon : MonoBehaviour
         rigidbody.sharedMaterial = ballPhysicsMaterial;
     }
 
-    void Fire()
+    void FireOnPress()
 	{
-        activeBall.transform.SetParent(null);
-        activeBall.Fire(transform.up);
-        activeBall = null;
+        if (Input.GetKeyDown(fireButton))
+		{
+            activeBall.transform.SetParent(null);
+            activeBall.Fire(transform.up);
+            activeBall = null;
+        }
     }
 
 	// Unity
 	private void Start()
 	{
         SpawnRandomBall();
+        Ball.OnBallConnected += BallConnected;
     }
 
 	private void Update()
 	{
         LookAtMouse();
-        if (Input.GetKeyDown(fireButton)) { Fire(); }
+        FireOnPress();
+    }
 
-        // For testing
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            SpawnRandomBall();
-        }
+    // Events
+    void BallConnected()
+	{
+        SpawnRandomBall();
     }
 }
