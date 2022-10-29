@@ -1,12 +1,19 @@
+using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DemonstrationUi : MonoBehaviour
+public class DemonstrationUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-	[SerializeField] Button reset;
 	[SerializeField] Toggle pause;
+	[SerializeField] Transform pauseContent;
+	[SerializeField] Button reset;
 	[SerializeField] Slider densitySlider;
 	[SerializeField] Slider heightSlider;
+
+	public static bool IsMouseOver;
+
+	public static event Action<bool> OnPause;
 
 	void CallAllFunctions()
 	{
@@ -28,10 +35,21 @@ public class DemonstrationUi : MonoBehaviour
 		heightSlider.onValueChanged.AddListener(value => HeightChanged(value));
 	}
 
+	public void OnPointerEnter(PointerEventData eventData)
+	{
+		IsMouseOver = true;
+	}
+
+	public void OnPointerExit(PointerEventData eventData)
+	{
+		IsMouseOver = false;
+	}
+
 	// Events
 	void Pause(bool value)
 	{
-
+		OnPause?.Invoke(value);
+		pauseContent.gameObject.SetActive(value);
 	}
 
 	void DensityChanged(float value, bool respawnLevel = false)

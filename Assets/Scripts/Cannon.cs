@@ -9,6 +9,8 @@ public class Cannon : MonoBehaviour
     [SerializeField] PhysicsMaterial2D ballPhysicsMaterial;
 	[SerializeField] List<Ball> ballsPrefabs;
 
+    [System.NonSerialized] public bool Pause = false;
+
     Ball activeBall;
 
     void LookAtMouse()
@@ -44,6 +46,9 @@ public class Cannon : MonoBehaviour
 
     void FireOnPress()
 	{
+        if (activeBall == null ||
+            DemonstrationUi.IsMouseOver) { return; }
+
         if (Input.GetKeyDown(fireButton))
 		{
             activeBall.transform.SetParent(null);
@@ -57,12 +62,16 @@ public class Cannon : MonoBehaviour
 	{
         SpawnRandomBall();
         Ball.OnBallConnected += BallConnected;
+        DemonstrationUi.OnPause += (value) => Pause = value;
     }
 
 	private void Update()
 	{
-        LookAtMouse();
-        FireOnPress();
+        if (!Pause)
+		{
+            LookAtMouse();
+            FireOnPress();
+        }
     }
 
     // Events

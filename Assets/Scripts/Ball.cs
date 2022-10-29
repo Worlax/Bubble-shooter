@@ -11,6 +11,7 @@ public class Ball : MonoBehaviour
 	[field: SerializeField] public BallType ThisBallType { get; private set; }
 
 	bool firedBall;
+	public static Ball FiredBall { get; private set; }
 
 	public static event Action OnBallConnected;
 
@@ -24,6 +25,7 @@ public class Ball : MonoBehaviour
 	public void Fire(Vector2 direction)
 	{
 		firedBall = true;
+		FiredBall = this;
 		Rigidbody2D rigidBody = GetComponent<Rigidbody2D>();
 		rigidBody.AddForce(direction * speed);
 	}
@@ -106,9 +108,36 @@ public class Ball : MonoBehaviour
 		if (firedBall)
 		{
 			firedBall = false;
+			FiredBall = null;
 			BallSpawner.Instance.ConnectBallToTarget(this, otherBall);
 			OnBallConnected?.Invoke();
 			CheckForMatch();
 		}
+	}
+
+	static Vector2 pausedVelocity;
+
+	// Events
+	static void Pause(bool value)
+	{
+		if (FiredBall == null) { return; }
+		Rigidbody2D rigidBody = FiredBall.GetComponent<Rigidbody2D>();
+
+		if (value)
+		{
+			pausedVelocity = rigidBody.velocity;
+			rigidBody.velocity = Vector2.zero;
+		}
+		else
+		{
+			rigidBody.velocity = pausedVelocity;
+			pausedVelocity = Vector2.zero;
+		}
+	}
+
+	// Constructor
+	static Ball()
+	{
+		DemonstrationUi.OnPause += Pause;
 	}
 }

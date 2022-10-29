@@ -45,6 +45,7 @@ public class BallSpawner : Singleton<BallSpawner>
 		List<Vector2> possibleSlots = GetPossibleSlotsToConnect(ball, target);
 		Vector2 closestSlot = GetClosestSlot(ball.transform.position, possibleSlots);
 		ball.transform.position = closestSlot;
+		ball.transform.SetParent(content);
 	}
 
 	void SpawnLevel()
