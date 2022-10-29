@@ -84,29 +84,27 @@ public class Ball : MonoBehaviour
 		return ballsContent.Where(x => !matchesToRemove.Contains(x)).ToList();
 	}
 
+	void CheckForMatch()
+	{
+		List<Ball> connectedBalls = GetConnectedBalls();
+		if (connectedBalls.Count >= ballsToMatch - 1)
+		{
+			connectedBalls.ForEach(x => Destroy(x.gameObject));
+			Destroy(gameObject);
+		}
+	}
+
 	// Unity
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		// This executes only on static balls
-		// And if type is matched - deletes all connected ballss
-
-
 		Ball otherBall = collision.collider.GetComponent<Ball>();
-		// test
-		if (otherBall != null && firedBall)
+		if (otherBall == null) { return; }
+
+		if (firedBall)
 		{
 			firedBall = false;
 			BallSpawner.Instance.ConnectBallToTarget(this, otherBall);
-		}
-
-		return;
-		// end test
-		if (otherBall == null || firedBall) { return; }
-
-		if (otherBall.ThisBallType == ThisBallType)
-		{
-			GetConnectedBalls().ForEach(x => Destroy(x.gameObject));
-			Destroy(gameObject);
+			CheckForMatch();
 		}
 	}
 }
