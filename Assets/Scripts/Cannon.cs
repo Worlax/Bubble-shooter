@@ -1,20 +1,28 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Cannon : MonoBehaviour
 {
-	[SerializeField] KeyCode fireButton = KeyCode.Mouse1;
+	[SerializeField] Button fireButton;
     [SerializeField] float maxAngle = 45;
     [SerializeField] Transform ballSpawnPosition;
     [SerializeField] PhysicsMaterial2D ballPhysicsMaterial;
 	[SerializeField] List<Ball> ballsPrefabs;
 
-    [System.NonSerialized] public bool Pause = false;
-
     Ball activeBall;
+    bool gamePaused;
+    bool touchOverUi = false;
 
     void LookAtMouse()
 	{
+
+
+        if (touchOverUi) return;
+        //
+
         Vector3 mousePosition = Input.mousePosition;
         Vector3 cannonPosition = Camera.main.WorldToScreenPoint(transform.position);
 
@@ -26,6 +34,15 @@ public class Cannon : MonoBehaviour
         angle = Mathf.Clamp(angle, maxAngle * -1, maxAngle);
 
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+    }
+
+    void CheckTouchOverUi()
+	{
+        foreach (Touch touch in Input.touches)
+        {
+            if (touch.phase == TouchPhase.Ended) { return; }
+            touchOverUi = EventSystem.current.IsPointerOverGameObject(touch.fingerId);
+        }
     }
 
     void SpawnRandomBall()
@@ -44,33 +61,33 @@ public class Cannon : MonoBehaviour
         rigidbody.sharedMaterial = ballPhysicsMaterial;
     }
 
-    void FireOnPress()
+    void Fire()
 	{
         if (activeBall == null ||
-            DemonstrationUi.IsMouseOver) { return; }
+            gamePaused == true) { return; }
 
-        if (Input.GetKeyDown(fireButton))
-		{
-            activeBall.transform.SetParent(null);
-            activeBall.Fire(transform.up);
-            activeBall = null;
-        }
+        activeBall.transform.SetParent(null);
+        activeBall.Fire(transform.up);
+        activeBall = null;
     }
 
-	// Unity
-	private void Start()
+    // Unity
+    private void Start()
 	{
         SpawnRandomBall();
+
         Ball.OnBallConnected += BallConnected;
-        DemonstrationUi.OnPause += (value) => Pause = value;
+        fireButton.onClick.AddListener(Fire);
+        DemonstrationUi.OnPause += (value) => gamePaused = value;
     }
 
 	private void Update()
 	{
-        if (!Pause)
+        CheckTouchOverUi();
+
+        if (!gamePaused && !touchOverUi)
 		{
             LookAtMouse();
-            FireOnPress();
         }
     }
 
