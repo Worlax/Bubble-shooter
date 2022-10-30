@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
+// Cannon controlls (rotation, fire, ball spawn)
 public class Cannon : MonoBehaviour
 {
 	[SerializeField] Button fireButton;
@@ -14,15 +14,11 @@ public class Cannon : MonoBehaviour
 
     Ball activeBall;
     bool gamePaused;
-    bool touchOverUi = false;
+    bool touchOverUi;
 
+    // Rotate cannon to cursor/touch position
     void LookAtMouse()
 	{
-
-
-        if (touchOverUi) return;
-        //
-
         Vector3 mousePosition = Input.mousePosition;
         Vector3 cannonPosition = Camera.main.WorldToScreenPoint(transform.position);
 

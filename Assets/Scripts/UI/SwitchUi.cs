@@ -8,6 +8,20 @@ public class SwitchUi : MonoBehaviour
 	[SerializeField] Button button;
 	[SerializeField] Transform ui;
 
+	IEnumerator FixUnityBug()
+	{
+		if (ui.gameObject.activeSelf)
+		{
+			demonstrationUi.OnPointerExit(null);
+		}
+		else
+		{
+			yield return new WaitForEndOfFrame();
+			yield return new WaitForEndOfFrame();
+			demonstrationUi.OnPointerEnter(null);
+		}
+	}
+
 	// Unity
 	private void Start()
 	{
@@ -25,23 +39,5 @@ public class SwitchUi : MonoBehaviour
 
 		BallSpawner.Instance.RespawnLevel();
 		ui.gameObject.SetActive(!ui.gameObject.activeSelf);
-	}
-
-	IEnumerator FixUnityBug()
-	{
-		if (ui.gameObject.activeSelf)
-		{
-			//print("Exit fix");
-			demonstrationUi.OnPointerExit(null);
-			//DemonstrationUi.IsMouseOver = false;
-		}
-		else
-		{
-			yield return new WaitForEndOfFrame();
-			yield return new WaitForEndOfFrame();
-			demonstrationUi.OnPointerEnter(null);
-			//print("Enter fix");
-			//DemonstrationUi.IsMouseOver = true;
-		}
 	}
 }

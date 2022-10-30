@@ -10,8 +10,8 @@ public class Ball : MonoBehaviour
 	[SerializeField] float overlapArea = 0.7f;
 	[field: SerializeField] public BallType ThisBallType { get; private set; }
 
-	bool firedBall;
 	public static Ball FiredBall { get; private set; }
+	static Vector2 pausedVelocity;
 
 	public static event Action OnBallConnected;
 
@@ -24,7 +24,6 @@ public class Ball : MonoBehaviour
 
 	public void Fire(Vector2 direction)
 	{
-		firedBall = true;
 		FiredBall = this;
 		Rigidbody2D rigidBody = GetComponent<Rigidbody2D>();
 		rigidBody.AddForce(direction * speed);
@@ -105,17 +104,14 @@ public class Ball : MonoBehaviour
 		Ball otherBall = collision.collider.GetComponent<Ball>();
 		if (otherBall == null) { return; }
 
-		if (firedBall)
+		if (FiredBall == this)
 		{
-			firedBall = false;
 			FiredBall = null;
 			BallSpawner.Instance.ConnectBallToTarget(this, otherBall);
 			OnBallConnected?.Invoke();
 			CheckForMatch();
 		}
 	}
-
-	static Vector2 pausedVelocity;
 
 	// Events
 	static void Pause(bool value)

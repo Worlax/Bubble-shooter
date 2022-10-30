@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Fill level with balls :^)
 public class BallSpawner : Singleton<BallSpawner>
 {
 	[SerializeField] int width;
@@ -34,21 +35,6 @@ public class BallSpawner : Singleton<BallSpawner>
 		SpawnLevel();
 	}
 
-	public void ConnectBallToTarget(Ball ball, Ball target)
-	{
-		ball.transform.rotation = Quaternion.identity;
-		Rigidbody2D rigitBody = ball.GetComponent<Rigidbody2D>();
-		if (rigitBody != null)
-		{
-			Destroy(rigitBody);
-		}
-
-		List<Vector2> possibleSlots = GetPossibleSlotsToConnect(ball, target);
-		Vector2 closestSlot = GetClosestSlot(ball.transform.position, possibleSlots);
-		ball.transform.position = closestSlot;
-		ball.transform.SetParent(content);
-	}
-
 	void SpawnLevel()
 	{
 		Vector2 startPosition = transform.position;
@@ -68,10 +54,27 @@ public class BallSpawner : Singleton<BallSpawner>
 		}
 	}
 
-	List<Vector2> GetPossibleSlotsToConnect(Ball ball, Ball target)
+	// Sets ball's position to the available position that is closest to another ball
+	public void ConnectBallToTarget(Ball ball, Ball target)
+	{
+		Rigidbody2D rigitBody = ball.GetComponent<Rigidbody2D>();
+		if (rigitBody != null) { Destroy(rigitBody); }
+
+		List<Vector2> newPossiblePositions = GetPossiblePositionsNearTarget(ball, target);
+		Vector2 closestPosition = GetClosestSlot(ball.transform.position, newPossiblePositions);
+
+		ball.transform.rotation = Quaternion.identity;
+		ball.transform.position = closestPosition;
+		ball.transform.SetParent(content);
+	}
+
+	List<Vector2> GetPossiblePositionsNearTarget(Ball ball, Ball target)
 	{
 		List<Vector2> slots = new List<Vector2>();
 
+		// 6 possible positions:
+		// left, right, top-left, top-right,
+		// bottom-left and bottom-right (from the target)
 		slots.Add(target.transform.position + new Vector3(horizontalSpacing, 0));
 		slots.Add(target.transform.position - new Vector3(horizontalSpacing, 0));
 		slots.Add(target.transform.position + new Vector3(-horizontalSpacing / 2, verticalSpacing));
@@ -124,8 +127,7 @@ public class BallSpawner : Singleton<BallSpawner>
 
 	Ball TryToSpawnBall(Vector2 position)
 	{
-		// Dont spawn if not lucky enough
-		// (luck depends on density)
+		// Ball spawn chance depends on density
 		bool shouldSpawn = Random.Range(1, 101) <= density;
 		if (!shouldSpawn) { return null; }
 
